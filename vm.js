@@ -42,8 +42,8 @@ const operations = [
 class VM {
   constructor(registers = [], flags = []) {
     this.pc = 0;
-    set_flags(flags);
-    initialize_registers(registers);
+    this.set_flags(flags);
+    this.initialize_registers(registers);
   }
 
   initialize_registers(registers) {
@@ -71,11 +71,29 @@ class VM {
   }
 
   exec() {
-    op = fetch;
-    try {
-      operations[op[0]].call();
-    } catch (e) {
-      console.log("Error! NULL!");
+
+    let running = false;
+
+    while (running == true) {
+
+      let op = this.fetch;
+
+      try {
+        operations[op[0]].call();
+      } catch (e) {
+        console.log("Error! NULL!");
+        running = false;
+      }
+
+      if (this.pc >= this.mem.size) {
+        running = false;
+      }
+
     }
+
+    return this.registers;
+
   }
 }
+
+module.exports = [VM];
