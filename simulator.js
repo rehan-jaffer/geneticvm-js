@@ -1,7 +1,21 @@
 var VM = require('./vm');
 
-function candidate_generator() {
-  return [0,0,0,0];
+const OPS_NUM = 8;
+const REG_NUM = 15;
+const MAX_CANDIDATE_SIZE = 10;
+
+function random_from(start, end) {
+  return Math.round((Math.random() * end) - start);
+}
+
+function candidate_generator(len) {
+
+    let genome = [];
+    for (let x=0;x<len;x++) {
+      genome.push([random_from(0,OPS_NUM), random_from(0,REG_NUM), random_from(0, REG_NUM), random_from(0,REG_NUM)]);
+    }
+    return genome;
+
 }
 
 class Simulator {
@@ -9,7 +23,7 @@ class Simulator {
   constructor(INITIAL_POPULATION_SIZE, CANDIDATE_GENERATOR, FLAGS=[]) {
     this.generation = [];
     for (let x=0;x<INITIAL_POPULATION_SIZE;x++) {
-      this.generation.push(candidate_generator.call());
+      this.generation.push(candidate_generator(random_from(1,MAX_CANDIDATE_SIZE)));
     }
   }
 
@@ -31,7 +45,8 @@ class Simulator {
       this.generation.map(
           function(c) { 
             let e = new Evaluation(c, self.inputs, self.outputs);
-            return [c, e.run()[0]];
+            let z = e.run();
+            return [c, z[0]];
       })
     }
   }
