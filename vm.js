@@ -45,9 +45,59 @@ class VM {
     ];
   }
 
+  debug(program) {
+    program.map(function(line) {
+      switch(line[0]) {
+        case 0:
+          "NOOP"
+        break;
+        case 1:
+          "r#{ine[1]} = r#{line[2]} + r#{line[3]}"
+        break;
+        case 2:
+          "r#{line[1]} = r#{line[2]} - r#{line[3]}"
+        break;
+        case 4:
+          "r#{line[1]} = r#{line[2]} * r#{line[3]}"
+        break;
+        case 5:
+          "r#{line[1]} = r#{line[2]} / r#{line[3]}"
+        break;
+        case 6:
+          "r#{line[1]} = r#{line[2]} ** r#{line[3]}"
+        break;
+        case 7:
+          "r#{line[1]} = exp(r#{line[2]})"
+        break;
+        case 8:
+          "r#{line[1]} = Math.log(r#{line[2]})"
+        break;
+        case 9:
+          "r#{line[1]} = r#{line[2]}**2"
+        break;
+        case 10:
+          "r#{line[1]} = Math.sqrt(r#{line[2]})"
+        break;
+        case 11:
+          "r#{line[1]} = Math.sin(r#{line[2]})"
+        break;
+        case 12:
+          "r#{line[1]} = Math.cos(r#{line[2]})"
+        break;
+        case 13:
+          "IF (r#{line[1]} > r#{line[2]})"
+        break;
+        case 14:
+          "IF (r#{line[1]} <= r#{line[2]})"
+        break;
+    }
+
+   });
+    
+  }
+
   initialize_registers(registers) {
-    this.r = [];
-    this.r.concat(registers);
+    this.r = registers;
     for (let x = 0; x < REGISTER_SIZE - registers.length; x++) {
       this.r.push(Math.round(Math.random()*32));
     }
@@ -84,6 +134,7 @@ class VM {
       } catch (e) {
         console.log("Error! NULL!");
         running = false;
+        console.log(this.mem);
         console.log(e);
       }
 
@@ -92,8 +143,7 @@ class VM {
       }
     }
 
-    console.log(this.r[0]);
-    return this.r;
+    return this.r[0];
   }
 }
 
