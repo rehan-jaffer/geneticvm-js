@@ -1,7 +1,9 @@
 const DEBUG_MODE = false;
 const REGISTER_SIZE = 16;
+const SLOW_MODE = false;
 
 const MANGLE_UNCHANGED_INPUT = 9000;
+var sleep = require('sleep');
 
 class VM {
   constructor(registers = [], flags = []) {
@@ -45,53 +47,60 @@ class VM {
     ];
   }
 
-  debug(program) {
-    program.map(function(line) {
-      switch(line[0]) {
+  debug_line(instr) {
+
+      switch(instr[0]) {
         case 0:
-          "NOOP"
+          return "NOOP"
         break;
         case 1:
-          "r#{ine[1]} = r#{line[2]} + r#{line[3]}"
+          return `r${instr[1]} = r${instr[2]} + r${instr[3]}`
         break;
         case 2:
-          "r#{line[1]} = r#{line[2]} - r#{line[3]}"
+          return `r${instr[1]} = r${instr[2]} - r${instr[3]}`
+        break;
+        case 3:
+          return `r${instr[1]} = r${instr[2]} * r${instr[3]}`
         break;
         case 4:
-          "r#{line[1]} = r#{line[2]} * r#{line[3]}"
+          return `r${instr[1]} = r${instr[2]} / r${instr[3]}`
         break;
         case 5:
-          "r#{line[1]} = r#{line[2]} / r#{line[3]}"
+          return `r${instr[1]} = r${instr[2]} ** r${instr[3]}`
         break;
         case 6:
-          "r#{line[1]} = r#{line[2]} ** r#{line[3]}"
+          return `r${instr[1]} = exp(r${instr[2]})`
         break;
         case 7:
-          "r#{line[1]} = exp(r#{line[2]})"
+          return `r${instr[1]} = Math.log(r${instr[2]})`
         break;
         case 8:
-          "r#{line[1]} = Math.log(r#{line[2]})"
+          return `r${instr[1]} = r${instr[2]}**2`
         break;
         case 9:
-          "r#{line[1]} = r#{line[2]}**2"
+          return `r#{instr[1]} = Math.sqrt(r#{instr[2]})`
         break;
         case 10:
-          "r#{line[1]} = Math.sqrt(r#{line[2]})"
+          return `r#{instr[1]} = Math.sin(r#{instr[2]})`
         break;
         case 11:
-          "r#{line[1]} = Math.sin(r#{line[2]})"
+          return `r#{instr[1]} = Math.cos(r#{instr[2]})`
         break;
         case 12:
-          "r#{line[1]} = Math.cos(r#{line[2]})"
+          return `IF (r#{instr[1]} > r#{instr[2]})`
         break;
         case 13:
-          "IF (r#{line[1]} > r#{line[2]})"
+          return `IF (r#{instr[1]} <= r#{instr[2]})`
         break;
-        case 14:
-          "IF (r#{line[1]} <= r#{line[2]})"
+        default:
+          console.log(line[0]);
         break;
     }
+  }
 
+  debugger(program) {
+    return program.map(function(line) {
+      debug_line(line)
    });
     
   }
@@ -126,15 +135,26 @@ class VM {
   exec() {
     let running = true;
 
+//    console.log("START");
+
     while (running == true) {
       let instr = this.fetch();
 
       try {
         this.map[instr[0]].call(instr[1], instr[2], instr[3]);
+        if (isNaN(this.r[0]) || this.r.includes(NaN)) {
+          // console.log(this.debugger(this.mem));
+          return 99999;
+        }
+        if (SLOW_MODE == true) {
+          console.log(this.debug_line(instr));
+          console.log(this.r.slice(0,3));
+          sleep.msleep(500);
+        }
+
       } catch (e) {
         console.log("Error! NULL!");
         running = false;
-        console.log(this.mem);
         console.log(e);
       }
 

@@ -1,8 +1,8 @@
 var VM = require('./vm');
 
-const OPS_NUM = 6;
-const REG_NUM = 8;
-const MAX_CANDIDATE_SIZE = 5;
+const OPS_NUM = 8;
+const REG_NUM = 10;
+const MAX_CANDIDATE_SIZE = 3;
 
 function random_from(start, end) {
   return Math.round((Math.random() * end) + start);
@@ -92,8 +92,8 @@ class Simulator {
         children.push(breed(next[x],next[x+1]));
       }
 
-      for (let x=0;x<100;x++) {
-        next.push(candidate_generator(random_from(1,100)));
+      for (let x=0;x<10;x++) {
+        next.push(candidate_generator(random_from(10,100)));
       }
       this.generation = next.concat(children).map((x) => mutate(x));
     }
@@ -114,6 +114,9 @@ class Evaluation {
               vm.load(self.program);
               let r = vm.exec();
               let r0 = r[0];
+              if (isNaN(r0)) {
+                r0 = 999;
+              }
               return Math.abs(self.outputs[n] - r0)
         }).reduce((i, acc) => acc + i, 0);
   }
