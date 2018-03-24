@@ -1,7 +1,7 @@
 var VM = require('./vm');
 
-const OPS_NUM = 8;
-const REG_NUM = 10;
+const OPS_NUM = 10;
+const REG_NUM = 14;
 const MAX_CANDIDATE_SIZE = 3;
 
 function random_from(start, end) {
@@ -31,8 +31,13 @@ function mutate(candidate) {
   for(let x=0;x<candidate.length;x++) {
     if (Math.round(Math.random()*10) == 2) {
       let field = Math.round(Math.random()*4);
-      candidate[x][field] += Math.round(Math.random()*4)-2;
-      candidate[x][field] = Math.abs(candidate[x][field]) % 8;
+      if (field == 0) {
+        candidate[x][field] += Math.round(Math.random()*4)-2;
+        candidate[x][field] = Math.abs(candidate[x][field]) % OPS_NUM;
+      } else {
+        candidate[x][field] += Math.round(Math.random()*4)-2;
+        candidate[x][field] = Math.abs(candidate[x][field]) % REG_NUM;
+      }
     }
   }
   return candidate;
@@ -70,17 +75,23 @@ class Simulator {
 
   }
   start(generations) {
+
     let self = this;
+
     for(let g=0;g<generations;g++) {
+
       let evaluated = this.generation.map(
           function(c) { 
             let e = new Evaluation(c, self.inputs, self.outputs);
             return [c, e.run()];
       }).filter((x) => !isNaN(x[1]));
+
       let best = evaluated.sort((x,y) => x[1]-y[1]).slice(0,100);
+
       if (best[1] == 0) {
-        exit;
+        exit; /* abort script if best score is zero */
       }
+
       let next = best.map((x) => x[0]);
       let scores = best.map((x) => x[1]);
       let avg = scores.reduce(((acc,x) => acc+x), 0)/scores.length;
@@ -97,6 +108,7 @@ class Simulator {
       }
       this.generation = next.concat(children).map((x) => mutate(x));
     }
+
   }
 }
 
