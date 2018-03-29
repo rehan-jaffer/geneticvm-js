@@ -51,7 +51,7 @@ class VM {
 
       switch(instr[0]) {
         case 0:
-          return "NOOP"
+          return `NOOP`
         break;
         case 1:
           return `r${instr[1]} = r${instr[2]} + r${instr[3]}`
@@ -93,22 +93,25 @@ class VM {
           return `IF (r#{instr[1]} <= r#{instr[2]})`
         break;
         default:
-          console.log(line[0]);
+          return instr[0];
         break;
     }
   }
 
   debugger(program) {
-    return program.map(function(line) {
-      debug_line(line)
+    var self = this;
+    let debug = program.map((line) => {
+      console.log(line)
+      return self.debug_line(line)
    });
-    
+   return debug;
   }
 
   initialize_registers(registers) {
-    this.r = registers;
+    this.r = new Array;
+    this.r = this.r.concat(registers);
     for (let x = 0; x < REGISTER_SIZE - registers.length; x++) {
-      this.r.push(Math.round(Math.random()*32));
+      this.r.push(parseFloat(x));
     }
   }
 
@@ -137,19 +140,22 @@ class VM {
 
 //    console.log("START");
 
+    if (DEBUG_MODE == true) {
+      console.log("START VALUE:" + this.r[0]);
+    }
+
     while (running == true) {
       let instr = this.fetch();
 
       try {
         this.map[instr[0]].call(instr[1], instr[2], instr[3]);
         if (isNaN(this.r[0]) || this.r.includes(NaN)) {
-          // console.log(this.debugger(this.mem));
           return 99999;
         }
         if (SLOW_MODE == true) {
           console.log(this.debug_line(instr));
-          console.log(this.r.slice(0,3));
-          sleep.msleep(500);
+          console.log(this.r.slice(0,10));
+          sleep.msleep(1000);
         }
 
       } catch (e) {
@@ -161,6 +167,10 @@ class VM {
       if (this.pc >= this.mem.length) {
         running = false;
       }
+    }
+
+    if (DEBUG_MODE == true) {
+      console.log("END VALUE:" + this.r[0]);
     }
 
     return this.r[0];
